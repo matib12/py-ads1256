@@ -7,7 +7,7 @@ sps = 25			 # ADC's SPS parameter
 AllChannelValuesVolts = [0,0,0,0,0,0,0,0]       
 
 # Create the second list. It will received absolute values converted to Volts
-AllChannelValues = [0,0,0,0,0,0,0,0]		
+AllChannelValues = [0,0,0,0,0,0,0,0]
 
 # Initialize the ADC using the parameters
 ads1256.start(str(gain),str(sps))  

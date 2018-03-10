@@ -3,21 +3,25 @@
 
 /* Docstrings */
 static char module_docstring[] =
-    "Esta biblioteca é um wrapper ";
+    "This library is a wrapper";
 
 /* Available functions */
 static PyObject *adc_read_channel(PyObject *self, PyObject *args);
 static PyObject *adc_read_all_channels(PyObject *self, PyObject *args);
 static PyObject *adc_start(PyObject *self, PyObject *args);
 static PyObject *adc_stop(PyObject *self, PyObject *args);
+static PyObject *dac_write(PyObject *self, PyObject *args);
+static PyObject *volt2dac(PyObject *self, PyObject *args);
 
 /* Module specification */
 static PyMethodDef module_methods[] = {
  //   {"chi2", chi2_chi2, METH_VARARGS, chi2_docstring},
-    {"read_channel", adc_read_channel, METH_VARARGS, {"lê o canal especificado do ads1256"}},
-    {"read_all_channels", adc_read_all_channels, METH_VARARGS, {"lê todos os 8 canais do ads1256"}},
-    {"start", adc_start, METH_VARARGS, {"inicia e configura o ads1256"}},
-    {"stop", adc_stop, 0, {"termina e fecha o ads1256"}},
+    {"read_channel", adc_read_channel, METH_VARARGS, {"read one specified channel of ads1256"}},
+    {"read_all_channels", adc_read_all_channels, METH_VARARGS, {"read all channels of ads1256"}},
+    {"start", adc_start, METH_VARARGS, {"initiate and configure ads1256"}},
+    {"stop", adc_stop, 0, {"close ads1256"}},
+    {"write", dac_write, METH_VARARGS, {"write DAC8552"}},
+    {"convert2dac", volt2dac, METH_VARARGS, {"convert voltage to DAC8552 raw"}},
     {NULL, NULL, 0, NULL}
 };
 
@@ -103,4 +107,36 @@ static PyObject *adc_stop(PyObject *self, PyObject *args)
     return ret;
 }
 
+static PyObject *dac_write(PyObject *self, PyObject *args)
+{
+    int ch;
+    int value;
+    long int retorno;
+    PyObject *yerr_obj;
 
+    /* Parse the input tuple */
+    if (!PyArg_ParseTuple(args, "II", &ch, &value ,&yerr_obj))
+        return NULL;
+
+    Write_DAC8552(ch, value);
+
+    return;
+}
+
+static PyObject *volt2dac(PyObject *self, PyObject *args)
+{
+    float vref;
+    float volt;
+    PyObject *yerr_obj;
+
+    /* Parse the input tuple */
+    if (!PyArg_ParseTuple(args, "ff", &vref, &volt ,&yerr_obj))
+        return NULL;
+
+    /* execute the code */ 
+    uint16_t value = Voltage_Convert(vref, volt);
+
+    /* Build the output tuple */
+    PyObject *ret = Py_BuildValue("I",value);
+    return ret;
+}
